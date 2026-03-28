@@ -97,6 +97,11 @@
     padding: 1.4rem 1.6rem;
     margin-bottom: 0;
   }
+
+  .step-block > button {
+    display: block;
+    margin: 0 auto;
+  }
   .step-label {
     display: flex;
     align-items: center;
@@ -146,14 +151,12 @@
   /* Gen form */
   .gen-grid {
     display: grid;
-    grid-template-columns: 1fr 100px 120px;
     gap: 0.7rem;
     margin-bottom: 1rem;
+    grid-template-columns: 1fr 1fr; 
   }
-  @media (max-width: 520px) {
-    .gen-grid { grid-template-columns: 1fr 1fr; }
-    .gen-field:first-child { grid-column: span 2; }
-  }
+
+  .gen-field:first-child { grid-column: span 2; }
 
   .field-label {
     display: block;
@@ -795,7 +798,7 @@
   <!-- ───── SCREEN: INPUT ───── -->
   <section id="screen-input" class="screen active">
     <h1 class="input-title">Quiz<br>Objetivas</h1>
-    <p class="input-sub">// gerado por LLM · cole o JSON abaixo</p>
+    <p class="input-sub">// Escolha o tema, gere o prompt e responda questões!</p>
 
     <!-- STEP 1: GENERATE PROMPT -->
     <div class="step-block">
@@ -805,8 +808,8 @@
       <div class="gen-grid">
         <div class="gen-field">
           <label class="field-label" for="topic-input">Tema / assunto</label>
-          <input id="topic-input" type="text"
-            placeholder="ex: Algoritmos de ordenação em Python" />
+          <textarea id="topic-input" type="text"
+            placeholder="ex: Algoritmos de ordenação em Python"></textarea>
         </div>
         <div class="gen-field gen-field-sm">
           <label class="field-label" for="qty-input">Nº de questões</label>
@@ -824,6 +827,7 @@
       </div>
 
       <div class="gen-prompt-wrap" id="gen-prompt-wrap" style="display:none">
+        <p class="field-label">Prompt gerado</p>
         <div class="gen-prompt-box" id="gen-prompt-box"></div>
         <button class="btn btn-copy" onclick="copyGenPrompt()">⎘ Copiar prompt</button>
         <p class="copy-feedback" id="gen-copy-feedback"></p>
@@ -1027,7 +1031,7 @@ function buildGenPrompt() {
     return;
   }
 
-  const prompt = `Gere ${qty} questões objetivas de dificuldade ${diff} sobre o tema: "${topic}".
+  const prompt = `Gere ${qty} questões objetivas de dificuldade ${diff} sobre o(s) tema(s): "${topic}".
 
 Retorne SOMENTE um array JSON válido, sem nenhum texto antes ou depois, sem blocos de código markdown, sem comentários. O array deve seguir exatamente este formato:
 
@@ -1046,6 +1050,7 @@ Regras:
 - "palavras_chave" deve listar os conceitos e assuntos específicos abordados
 - Varie os tipos de questão (conceitual, aplicação, análise)
 - Não repita conteúdo entre as questões
+- Varie a ordem dos assuntos abordados
 - Retorne apenas o JSON, nada mais`;
 
   document.getElementById('gen-prompt-box').textContent = prompt;
