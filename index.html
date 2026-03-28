@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quiz — Questões Objetivas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg:        #0d0d11;
+    --surface:   #15151c;
+    --surface2:  #1e1e28;
+    --border:    #2a2a38;
+    --accent:    #e8b04b;
+    --accent2:   #c97b38;
+    --correct:   #4caf7d;
+    --wrong:     #e05c5c;
+    --text:      #dcd8ce;
+    --muted:     #7a7890;
+    --tag-bg:    #1f1f2e;
+    --radius:    10px;
+    --mono:      'IBM Plex Mono', monospace;
+    --serif:     'Source Serif 4', Georgia, serif;
+    --display:   'Playfair Display', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    font-size: 1rem;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ─── LAYOUT ─── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 1.2rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  header .logo {
+    font-family: var(--display);
+    font-size: 1.35rem;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  header .badge {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 2px 8px;
+    border-radius: 99px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+  }
+
+  /* ─── SCREENS ─── */
+  .screen { display: none; animation: fadeIn 0.4s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ─── INPUT SCREEN ─── */
+  .input-title {
+    font-family: var(--display);
+    font-size: 2rem;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+    line-height: 1.2;
+  }
+  .input-sub {
+    color: var(--muted);
+    font-size: 0.92rem;
+    font-family: var(--mono);
+    margin-bottom: 2rem;
+  }
+
+  /* Steps */
+  .step-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 0;
+  }
+  .step-label {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.2px;
+  }
+  .step-num {
+    width: 22px; height: 22px;
+    background: var(--accent);
+    color: #0d0d11;
+    border-radius: 50%;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 1.1rem;
+  }
+
+  .step-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 1rem 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .step-divider::before,
+  .step-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Gen form */
+  .gen-grid {
+    display: grid;
+    grid-template-columns: 1fr 100px 120px;
+    gap: 0.7rem;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 520px) {
+    .gen-grid { grid-template-columns: 1fr 1fr; }
+    .gen-field:first-child { grid-column: span 2; }
+  }
+
+  .field-label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+  .gen-field input[type=text],
+  .gen-field input[type=number],
+  .gen-field select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    padding: 0.55rem 0.8rem;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .gen-field input:focus,
+  .gen-field select:focus { border-color: var(--accent); }
+  .gen-field input::placeholder { color: var(--muted); }
+  .gen-field select { cursor: pointer; }
+
+  .gen-prompt-wrap {
+    margin-bottom: 0.8rem;
+    animation: fadeIn 0.3s ease;
+  }
+  .gen-prompt-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    color: #a8b5c8;
+    white-space: pre-wrap;
+    line-height: 1.7;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 0.5rem;
+  }
+  .gen-prompt-box::-webkit-scrollbar { width: 4px; }
+  .gen-prompt-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+  .btn-outline-accent {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    margin-top: 0;
+  }
+  .btn-outline-accent:hover { background: rgba(232,176,75,0.08); }
+
+  .schema-hint {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  .schema-hint summary {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+    letter-spacing: 0.5px;
+  }
+  .schema-hint summary:hover { color: var(--accent); }
+  .schema-hint pre {
+    margin-top: 0.8rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    color: #a8b5c8;
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 220px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    padding: 1rem 1.2rem;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+    margin-top: 0.8rem;
+  }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--muted); }
+
+  .error-msg {
+    color: var(--wrong);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    margin-top: 0.6rem;
+    display: none;
+  }
+  .error-msg.show { display: block; }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.6rem;
+    border-radius: var(--radius);
+    border: none;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    text-decoration: none;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--accent);
+    color: #0d0d11;
+    font-weight: 600;
+    margin-top: 1rem;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+  .btn-copy {
+    background: var(--surface2);
+    color: var(--accent);
+    border: 1px solid var(--border);
+    width: 100%;
+    justify-content: center;
+    padding: 0.85rem;
+    margin-top: 0.75rem;
+    font-size: 0.82rem;
+  }
+  .btn-copy:hover { border-color: var(--accent); }
+
+  /* ─── QUIZ SCREEN ─── */
+  .quiz-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+  .quiz-meta-left {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    color: var(--accent);
+  }
+  .progress-pill {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    border-radius: 99px;
+  }
+
+  .progress-bar-wrap {
+    width: 100%;
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 99px;
+    margin-bottom: 2.5rem;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  /* ─── QUESTION CARD ─── */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.6rem 1.8rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .q-number {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  .q-statement {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    margin-bottom: 1.4rem;
+    color: var(--text);
+  }
+
+  .alternatives { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .alt-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+  .alt-label:hover { border-color: var(--accent); background: #1e1e2a; }
+  .alt-label input[type=radio] { display: none; }
+
+  .alt-letter {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    min-width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--muted);
+    margin-top: 1px;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .alt-label input:checked ~ .alt-letter {
+    background: var(--accent);
+    color: #0d0d11;
+    border-color: var(--accent);
+  }
+  .alt-label.selected { border-color: var(--accent); background: #1e1e24; }
+
+  .alt-text {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    padding-top: 1px;
+  }
+
+  /* Post-answer states */
+  .alt-label.correct-choice {
+    border-color: var(--correct) !important;
+    background: rgba(76,175,125,0.06) !important;
+  }
+  .alt-label.correct-choice .alt-letter {
+    background: var(--correct);
+    color: #0d0d11;
+    border-color: var(--correct);
+  }
+  .alt-label.wrong-choice {
+    border-color: var(--wrong) !important;
+    background: rgba(224,92,92,0.06) !important;
+  }
+  .alt-label.wrong-choice .alt-letter {
+    background: var(--wrong);
+    color: #fff;
+    border-color: var(--wrong);
+  }
+  .alt-label.disabled { cursor: default; pointer-events: none; }
+  .answer-badge {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    margin-top: 0.9rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: none;
+  }
+  .answer-badge.correct { color: var(--correct); background: rgba(76,175,125,0.1); display: inline-block; }
+  .answer-badge.wrong   { color: var(--wrong);   background: rgba(224,92,92,0.1);   display: inline-block; }
+
+  /* Tags */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1.1rem;
+  }
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 2px 9px;
+    border-radius: 99px;
+    letter-spacing: 0.4px;
+  }
+
+  .submit-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2rem;
+  }
+
+  /* ─── RESULTS SCREEN ─── */
+  .results-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .score-ring {
+    width: 110px;
+    height: 110px;
+    margin: 0 auto 1.2rem;
+    position: relative;
+  }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring circle { fill: none; stroke-width: 7; }
+  .ring-bg  { stroke: var(--surface2); }
+  .ring-fill { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+  .ring-fill.bad { stroke: var(--wrong); }
+  .score-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--display);
+    font-size: 1.4rem;
+    color: var(--accent);
+  }
+  .results-title {
+    font-family: var(--display);
+    font-size: 2rem;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+  .results-sub {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .stat-box {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.2rem;
+    text-align: center;
+    position: relative;
+  }
+  .stat-box.clickable {
+    cursor: pointer;
+    transition: border-color 0.18s, background 0.18s, transform 0.12s;
+  }
+  .stat-box.clickable:hover { background: var(--surface2); transform: translateY(-2px); }
+  .stat-box.clickable:active { transform: scale(0.97); }
+  .stat-box.correct-box.clickable:hover { border-color: var(--correct); }
+  .stat-box.wrong-box.clickable:hover   { border-color: var(--wrong); }
+  .stat-box .click-hint {
+    position: absolute;
+    top: 7px; right: 8px;
+    font-size: 0.62rem;
+    font-family: var(--mono);
+    color: var(--muted);
+    opacity: 0;
+    transition: opacity 0.2s;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .stat-box.clickable:hover .click-hint { opacity: 1; }
+  .stat-box .num {
+    font-family: var(--display);
+    font-size: 1.8rem;
+  }
+  .stat-box.correct-box .num { color: var(--correct); }
+  .stat-box.wrong-box   .num { color: var(--wrong);   }
+  .stat-box .lbl {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .stat-box .peek-icon {
+    display: block;
+    margin: 6px auto 0;
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 0.3px;
+  }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8,8,12,0.82);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem 3rem;
+    overflow-y: auto;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 680px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    animation: modalSlide 0.25s ease;
+    overflow: hidden;
+    margin: auto;
+  }
+  @keyframes modalSlide {
+    from { opacity:0; transform: translateY(18px) scale(0.98); }
+    to   { opacity:1; transform: translateY(0)    scale(1); }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 1.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-title {
+    font-family: var(--display);
+    font-size: 1.2rem;
+  }
+  .modal-title.correct { color: var(--correct); }
+  .modal-title.wrong   { color: var(--wrong); }
+  .modal-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--muted);
+    font-size: 1rem;
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    line-height: 1;
+  }
+  .modal-close:hover { color: var(--text); border-color: var(--muted); }
+
+  .modal-body {
+    padding: 1.4rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .modal-body::-webkit-scrollbar { width: 5px; }
+  .modal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+  .modal-q-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.4rem;
+  }
+  .modal-q-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .modal-q-num.correct { color: var(--correct); }
+  .modal-q-num.wrong   { color: var(--wrong); }
+
+  .modal-q-statement {
+    font-size: 0.97rem;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+
+  .modal-alts { display: flex; flex-direction: column; gap: 0.4rem; }
+  .modal-alt {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .modal-alt.is-correct {
+    border-color: var(--correct);
+    background: rgba(76,175,125,0.07);
+    color: var(--text);
+  }
+  .modal-alt.is-wrong {
+    border-color: var(--wrong);
+    background: rgba(224,92,92,0.07);
+    color: var(--text);
+  }
+  .modal-alt-letter {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    min-width: 20px; height: 20px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .modal-alt.is-correct .modal-alt-letter {
+    background: var(--correct); color: #0d0d11; border-color: var(--correct);
+  }
+  .modal-alt.is-wrong .modal-alt-letter {
+    background: var(--wrong); color: #fff; border-color: var(--wrong);
+  }
+  .modal-verdict {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    margin-top: 0.7rem;
+    padding: 3px 9px;
+    border-radius: 5px;
+    display: inline-block;
+  }
+  .modal-verdict.correct { color: var(--correct); background: rgba(76,175,125,0.1); }
+  .modal-verdict.wrong   { color: var(--wrong);   background: rgba(224,92,92,0.1); }
+
+  .modal-tags {
+    display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.8rem;
+  }
+  .modal-empty {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    padding: 2rem 0;
+  }
+
+  .section-title {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .prompt-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: #a8b5c8;
+    white-space: pre-wrap;
+    line-height: 1.7;
+    max-height: 260px;
+    overflow-y: auto;
+    margin-bottom: 0.5rem;
+  }
+  .prompt-box::-webkit-scrollbar { width: 5px; }
+  .prompt-box::-webkit-scrollbar-track { background: transparent; }
+  .prompt-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+  .copy-feedback {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--correct);
+    text-align: center;
+    margin-top: 0.4rem;
+    height: 1.2em;
+    transition: opacity 0.3s;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 520px) {
+    main { padding: 1.8rem 1rem 4rem; }
+    .question-card { padding: 1.2rem 1rem; }
+    .input-title { font-size: 1.6rem; }
+    .results-title { font-size: 1.5rem; }
+    .quiz-meta-left { font-size: 1.2rem; }
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <span class="logo">Quiz</span>
+  <span class="badge">Questões Objetivas</span>
+</header>
+
+<main>
+
+  <!-- ───── SCREEN: INPUT ───── -->
+  <section id="screen-input" class="screen active">
+    <h1 class="input-title">Quiz<br>Objetivas</h1>
+    <p class="input-sub">// gerado por LLM · cole o JSON abaixo</p>
+
+    <!-- STEP 1: GENERATE PROMPT -->
+    <div class="step-block">
+      <div class="step-label"><span class="step-num">1</span> Gerar questões com uma LLM</div>
+      <p class="step-desc">Descreva o tema e preferências — o site monta o prompt para você.</p>
+
+      <div class="gen-grid">
+        <div class="gen-field">
+          <label class="field-label" for="topic-input">Tema / assunto</label>
+          <input id="topic-input" type="text"
+            placeholder="ex: Algoritmos de ordenação em Python" />
+        </div>
+        <div class="gen-field gen-field-sm">
+          <label class="field-label" for="qty-input">Nº de questões</label>
+          <input id="qty-input" type="number" min="1" max="50" value="10" />
+        </div>
+        <div class="gen-field gen-field-sm">
+          <label class="field-label" for="diff-input">Dificuldade</label>
+          <select id="diff-input">
+            <option value="fácil">Fácil</option>
+            <option value="média" selected>Média</option>
+            <option value="difícil">Difícil</option>
+            <option value="mista">Mista</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="gen-prompt-wrap" id="gen-prompt-wrap" style="display:none">
+        <div class="gen-prompt-box" id="gen-prompt-box"></div>
+        <button class="btn btn-copy" onclick="copyGenPrompt()">⎘ Copiar prompt</button>
+        <p class="copy-feedback" id="gen-copy-feedback"></p>
+      </div>
+      <button class="btn btn-outline-accent" onclick="buildGenPrompt()">⚡ Gerar prompt</button>
+    </div>
+
+    <div class="step-divider">
+      <span>depois, cole o JSON gerado aqui</span>
+    </div>
+
+    <!-- STEP 2: PASTE JSON -->
+    <div class="step-block">
+      <div class="step-label"><span class="step-num">2</span> Cole o JSON retornado</div>
+
+      <details class="schema-hint">
+        <summary>▸ ver formato esperado</summary>
+        <pre>[
+  {
+    "enunciado": "Qual estrutura de dados opera em LIFO?",
+    "alternativas": ["Fila", "Pilha", "Árvore", "Grafo"],
+    "resposta": "Pilha",
+    "palavras_chave": ["estruturas de dados", "LIFO", "pilha"]
+  }
+]</pre>
+      </details>
+
+      <textarea id="json-input" placeholder="Cole o JSON aqui..."></textarea>
+      <p id="error-msg" class="error-msg"></p>
+      <button class="btn btn-primary" onclick="loadQuiz()">▶ Iniciar Quiz</button>
+    </div>
+  </section>
+
+  <!-- ───── SCREEN: QUIZ ───── -->
+  <section id="screen-quiz" class="screen">
+    <div class="quiz-meta">
+      <div class="quiz-meta-left">Responda as questões</div>
+      <div class="progress-pill" id="progress-pill">0 / 0</div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div id="questions-container"></div>
+    <div class="submit-row">
+      <button class="btn btn-primary" onclick="submitQuiz()">Finalizar e Ver Resultado →</button>
+    </div>
+  </section>
+
+  <!-- ───── SCREEN: RESULTS ───── -->
+  <section id="screen-results" class="screen">
+    <div class="results-header">
+      <div class="score-ring">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle class="ring-bg"  cx="55" cy="55" r="48" />
+          <circle class="ring-fill" id="ring-fill" cx="55" cy="55" r="48"
+            stroke-dasharray="301.6" stroke-dashoffset="301.6" />
+        </svg>
+        <div class="score-text" id="score-text">0%</div>
+      </div>
+      <h2 class="results-title" id="result-title">Resultado</h2>
+      <p class="results-sub" id="result-sub"></p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box correct-box clickable" onclick="openModal('correct')" title="Ver questões corretas">
+        <span class="click-hint">ver questões ↗</span>
+        <div class="num" id="stat-correct">0</div>
+        <div class="lbl">Corretas</div>
+        <span class="peek-icon">🔍</span>
+      </div>
+      <div class="stat-box wrong-box clickable" onclick="openModal('wrong')" title="Ver questões incorretas">
+        <span class="click-hint">ver questões ↗</span>
+        <div class="num" id="stat-wrong">0</div>
+        <div class="lbl">Incorretas</div>
+        <span class="peek-icon">🔍</span>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="stat-total" style="color:var(--accent)">0</div>
+        <div class="lbl">Total</div>
+      </div>
+    </div>
+
+    <p class="section-title">Prompt para LLM</p>
+    <div class="prompt-box" id="llm-prompt"></div>
+    <button class="btn btn-copy" onclick="copyPrompt()">⎘ Copiar Prompt</button>
+    <p class="copy-feedback" id="copy-feedback"></p>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="reviewMode()">↺ Revisar Questões</button>
+      <button class="btn btn-ghost" onclick="retryQuiz()">↻ Tentar Novamente</button>
+      <button class="btn btn-primary" onclick="resetAll()">+ Novo Quiz</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- ───── MODAL ───── -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Questões</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────
+let questions = [];
+let userAnswers = {};   // { index: "alternativa escolhida" }
+let submitted = false;
+
+const LETTERS = ['A','B','C','D','E','F','G','H'];
+
+// ─── NAVIGATION ──────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ─── MODAL ───────────────────────────────────────────
+function openModal(type) {
+  const isCorrect = type === 'correct';
+  const title = document.getElementById('modal-title');
+  const body  = document.getElementById('modal-body');
+
+  title.textContent = isCorrect ? '✓ Questões Corretas' : '✗ Questões Incorretas';
+  title.className   = 'modal-title ' + (isCorrect ? 'correct' : 'wrong');
+
+  const filtered = questions.reduce((acc, q, qi) => {
+    const wasCorrect = userAnswers[qi] === q.resposta;
+    if (isCorrect ? wasCorrect : !wasCorrect) acc.push({ q, qi });
+    return acc;
+  }, []);
+
+  if (filtered.length === 0) {
+    body.innerHTML = `<div class="modal-empty">${isCorrect ? 'Nenhuma questão correta.' : 'Nenhuma questão incorreta. 🎉'}</div>`;
+  } else {
+    body.innerHTML = filtered.map(({ q, qi }) => {
+      const chosen  = userAnswers[qi];
+      const correct = q.resposta;
+      const verdict = chosen === correct
+        ? '<span class="modal-verdict correct">✓ Correta</span>'
+        : chosen
+          ? `<span class="modal-verdict wrong">✗ Incorreta — você escolheu: ${chosen}</span>`
+          : '<span class="modal-verdict wrong">✗ Não respondida</span>';
+
+      const alts = q.alternativas.map((alt, ai) => {
+        let cls = '';
+        if (alt === correct)                         cls = 'is-correct';
+        else if (alt === chosen && chosen !== correct) cls = 'is-wrong';
+        return `
+          <div class="modal-alt ${cls}">
+            <span class="modal-alt-letter">${LETTERS[ai]}</span>
+            <span>${alt}</span>
+          </div>`;
+      }).join('');
+
+      const tags = (q.palavras_chave || [])
+        .map(t => `<span class="tag">${t}</span>`).join('');
+
+      const numCls = isCorrect ? 'correct' : 'wrong';
+
+      return `
+        <div class="modal-q-card">
+          <div class="modal-q-num ${numCls}">Questão ${qi + 1} de ${questions.length}</div>
+          <div class="modal-q-statement">${q.enunciado}</div>
+          <div class="modal-alts">${alts}</div>
+          ${verdict}
+          ${tags ? `<div class="modal-tags">${tags}</div>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ─── GEN PROMPT ──────────────────────────────────────
+function buildGenPrompt() {
+  const topic = document.getElementById('topic-input').value.trim();
+  const qty   = parseInt(document.getElementById('qty-input').value) || 10;
+  const diff  = document.getElementById('diff-input').value;
+
+  if (!topic) {
+    document.getElementById('topic-input').focus();
+    document.getElementById('topic-input').style.borderColor = 'var(--wrong)';
+    setTimeout(() => { document.getElementById('topic-input').style.borderColor = ''; }, 1500);
+    return;
+  }
+
+  const prompt = `Gere ${qty} questões objetivas de dificuldade ${diff} sobre o tema: "${topic}".
+
+Retorne SOMENTE um array JSON válido, sem nenhum texto antes ou depois, sem blocos de código markdown, sem comentários. O array deve seguir exatamente este formato:
+
+[
+  {
+    "enunciado": "Texto completo da pergunta aqui",
+    "alternativas": ["Opção A", "Opção B", "Opção C", "Opção D"],
+    "resposta": "Opção correta (deve ser igual a um dos itens em alternativas)",
+    "palavras_chave": ["tópico1", "tópico2", "conceito relevante"]
+  }
+]
+
+Regras:
+- Cada questão deve ter entre 3 e 5 alternativas
+- O valor de "resposta" deve ser idêntico a um dos valores em "alternativas"
+- "palavras_chave" deve listar os conceitos e assuntos específicos abordados
+- Varie os tipos de questão (conceitual, aplicação, análise)
+- Não repita conteúdo entre as questões
+- Retorne apenas o JSON, nada mais`;
+
+  document.getElementById('gen-prompt-box').textContent = prompt;
+  document.getElementById('gen-prompt-wrap').style.display = 'block';
+}
+
+function copyGenPrompt() {
+  const text = document.getElementById('gen-prompt-box').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const fb = document.getElementById('gen-copy-feedback');
+    fb.textContent = '✓ Prompt copiado!';
+    setTimeout(() => { fb.textContent = ''; }, 3000);
+  });
+}
+
+// ─── LOAD QUIZ ───────────────────────────────────────
+function loadQuiz() {
+  const raw = document.getElementById('json-input').value.trim();
+  const err = document.getElementById('error-msg');
+  err.classList.remove('show');
+
+  if (!raw) {
+    showError('Cole um JSON válido no campo acima.');
+    return;
+  }
+
+  let parsed;
+  try { parsed = JSON.parse(raw); } catch {
+    showError('JSON inválido. Verifique a formatação.');
+    return;
+  }
+
+  if (!Array.isArray(parsed) || parsed.length === 0) {
+    showError('O JSON deve ser um array com ao menos uma questão.');
+    return;
+  }
+
+  // Validate fields
+  for (let i = 0; i < parsed.length; i++) {
+    const q = parsed[i];
+    if (!q.enunciado || !Array.isArray(q.alternativas) || !q.resposta) {
+      showError(`Questão ${i+1}: campos obrigatórios ausentes (enunciado, alternativas, resposta).`);
+      return;
+    }
+  }
+
+  questions = parsed;
+  userAnswers = {};
+  submitted = false;
+
+  renderQuestions();
+  showScreen('screen-quiz');
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+// ─── RENDER QUESTIONS ─────────────────────────────────
+function renderQuestions() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+
+  questions.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `q-card-${qi}`;
+
+    const tags = (q.palavras_chave || [])
+      .map(t => `<span class="tag">${t}</span>`)
+      .join('');
+
+    const alts = q.alternativas.map((alt, ai) => `
+      <label class="alt-label" id="alt-${qi}-${ai}" onclick="selectAlt(${qi}, ${ai})">
+        <input type="radio" name="q${qi}" value="${ai}" />
+        <span class="alt-letter">${LETTERS[ai]}</span>
+        <span class="alt-text">${alt}</span>
+      </label>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="q-number">Questão ${qi + 1} de ${questions.length}</div>
+      <div class="q-statement">${q.enunciado}</div>
+      <div class="alternatives" id="alts-${qi}">${alts}</div>
+      <div class="answer-badge" id="badge-${qi}"></div>
+      ${tags ? `<div class="tags">${tags}</div>` : ''}
+    `;
+
+    container.appendChild(card);
+  });
+
+  updateProgress();
+}
+
+function selectAlt(qi, ai) {
+  if (submitted) return;
+
+  // Update visual selection
+  const alts = document.querySelectorAll(`#alts-${qi} .alt-label`);
+  alts.forEach(l => l.classList.remove('selected'));
+  alts[ai].classList.add('selected');
+
+  userAnswers[qi] = questions[qi].alternativas[ai];
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = Object.keys(userAnswers).length;
+  const total = questions.length;
+  document.getElementById('progress-pill').textContent = `${answered} / ${total} respondidas`;
+  document.getElementById('progress-bar').style.width = `${(answered/total)*100}%`;
+}
+
+// ─── SUBMIT ──────────────────────────────────────────
+function submitQuiz() {
+  const unanswered = questions.reduce((acc, _, i) => {
+    if (userAnswers[i] === undefined) acc.push(i + 1);
+    return acc;
+  }, []);
+
+  if (unanswered.length > 0) {
+    const msg = unanswered.length === 1
+      ? `A questão ${unanswered[0]} ainda não foi respondida.`
+      : `As questões ${unanswered.join(', ')} ainda não foram respondidas.`;
+    if (!confirm(`${msg}\n\nDeseja finalizar mesmo assim?`)) return;
+  }
+
+  submitted = true;
+  revealAnswers();
+  buildResults();
+  showScreen('screen-results');
+}
+
+// ─── REVEAL ANSWERS ──────────────────────────────────
+function revealAnswers() {
+  questions.forEach((q, qi) => {
+    const alts = document.querySelectorAll(`#alts-${qi} .alt-label`);
+    const badge = document.getElementById(`badge-${qi}`);
+    const chosen = userAnswers[qi];
+    const correct = q.resposta;
+
+    alts.forEach((label, ai) => {
+      label.classList.add('disabled');
+      const altText = q.alternativas[ai];
+      if (altText === correct) label.classList.add('correct-choice');
+      else if (altText === chosen && chosen !== correct) label.classList.add('wrong-choice');
+    });
+
+    if (chosen === undefined) {
+      badge.textContent = `✗ Não respondida — Resposta: ${correct}`;
+      badge.className = 'answer-badge wrong';
+    } else if (chosen === correct) {
+      badge.textContent = '✓ Correto!';
+      badge.className = 'answer-badge correct';
+    } else {
+      badge.textContent = `✗ Incorreto — Resposta correta: ${correct}`;
+      badge.className = 'answer-badge wrong';
+    }
+  });
+}
+
+// ─── RESULTS ─────────────────────────────────────────
+function buildResults() {
+  const total   = questions.length;
+  let correct   = 0;
+  const wrongQs = [];
+
+  questions.forEach((q, qi) => {
+    if (userAnswers[qi] === q.resposta) {
+      correct++;
+    } else {
+      wrongQs.push({ qi, q });
+    }
+  });
+
+  const pct = Math.round((correct / total) * 100);
+
+  // Ring
+  const circumference = 301.6;
+  const offset = circumference - (circumference * pct / 100);
+  const ring = document.getElementById('ring-fill');
+  ring.style.strokeDashoffset = circumference; // reset
+  setTimeout(() => { ring.style.strokeDashoffset = offset; }, 80);
+  if (pct < 50) ring.classList.add('bad'); else ring.classList.remove('bad');
+
+  document.getElementById('score-text').textContent = `${pct}%`;
+  document.getElementById('stat-correct').textContent = correct;
+  document.getElementById('stat-wrong').textContent   = total - correct;
+  document.getElementById('stat-total').textContent   = total;
+
+  const titles = ['Boa sorte na próxima!','Continue praticando!','Quase lá!','Muito bem!','Excelente!'];
+  const ti = pct < 20 ? 0 : pct < 40 ? 1 : pct < 60 ? 2 : pct < 80 ? 3 : 4;
+  document.getElementById('result-title').textContent = titles[ti];
+  document.getElementById('result-sub').textContent =
+    `${correct} de ${total} questões corretas — ${pct}% de aproveitamento`;
+
+  // LLM Prompt
+  const lines = [];
+  lines.push('Você é um tutor de estudos. Abaixo estão os resultados de uma sessão de questões objetivas. Por favor, analise o desempenho e forneça um plano de reforço personalizado.\n');
+  lines.push(`## Resumo\n- Total de questões: ${total}\n- Acertos: ${correct}\n- Erros: ${total - correct}\n- Aproveitamento: ${pct}%\n`);
+
+  lines.push('## Questões respondidas\n');
+  questions.forEach((q, qi) => {
+    const chosen  = userAnswers[qi] ?? '(não respondida)';
+    const correct_ = q.resposta;
+    const status  = chosen === correct_ ? '✓ CORRETA' : '✗ INCORRETA';
+    lines.push(`### Questão ${qi + 1} — ${status}`);
+    lines.push(`**Enunciado:** ${q.enunciado}`);
+    lines.push(`**Resposta escolhida:** ${chosen}`);
+    lines.push(`**Resposta correta:** ${correct_}`);
+    if (q.palavras_chave && q.palavras_chave.length) {
+      lines.push(`**Assuntos:** ${q.palavras_chave.join(', ')}`);
+    }
+    lines.push('');
+  });
+
+  if (wrongQs.length > 0) {
+    const weakTopics = [...new Set(
+      wrongQs.flatMap(({ q }) => q.palavras_chave || [])
+    )];
+    lines.push('## Pontos que precisam de reforço\n');
+    if (weakTopics.length > 0) {
+      lines.push('**Tópicos identificados:**');
+      weakTopics.forEach(t => lines.push(`- ${t}`));
+      lines.push('');
+    }
+    lines.push('**Questões incorretas detalhadas:**');
+    wrongQs.forEach(({ qi, q }) => {
+      lines.push(`- Questão ${qi + 1}: "${q.enunciado.slice(0, 80)}${q.enunciado.length > 80 ? '…' : ''}"`);
+    });
+    lines.push('');
+    lines.push('Por favor, explique cada tópico de reforço de forma clara, indique os erros conceituais prováveis e sugira recursos ou exercícios para fixação.');
+  } else {
+    lines.push('## Parabéns!\nO estudante acertou todas as questões. Sugira tópicos avançados relacionados aos assuntos abordados para expandir o conhecimento.');
+  }
+
+  document.getElementById('llm-prompt').textContent = lines.join('\n');
+}
+
+// ─── COPY PROMPT ─────────────────────────────────────
+function copyPrompt() {
+  const text = document.getElementById('llm-prompt').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const fb = document.getElementById('copy-feedback');
+    fb.textContent = '✓ Prompt copiado para a área de transferência!';
+    setTimeout(() => { fb.textContent = ''; }, 3000);
+  });
+}
+
+// ─── REVIEW MODE (show quiz screen after results) ────
+function reviewMode() {
+  showScreen('screen-quiz');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── RETRY ───────────────────────────────────────────
+function retryQuiz() {
+  userAnswers = {};
+  submitted = false;
+  renderQuestions();
+  showScreen('screen-quiz');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── RESET ───────────────────────────────────────────
+function resetAll() {
+  questions = [];
+  userAnswers = {};
+  submitted = false;
+  document.getElementById('json-input').value = '';
+  document.getElementById('error-msg').classList.remove('show');
+  showScreen('screen-input');
+}
+</script>
+</body>
+</html>
