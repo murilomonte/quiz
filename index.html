@@ -1051,7 +1051,19 @@ Regras:
 - Varie os tipos de questão (conceitual, aplicação, análise)
 - Não repita conteúdo entre as questões
 - Varie a ordem dos assuntos abordados
-- Retorne apenas o JSON, nada mais`;
+- Retorne apenas o JSON, nada mais
+- O array "palavras_chave" deve sempre incluir o nível de dificuldade da questão como último elemento, no formato: "dificuldade: fácil", "dificuldade: média" ou "dificuldade: difícil"
+  
+Regras adicionais para qualidade das alternativas:
+- Todas as alternativas devem ter o mesmo nível de detalhamento e tamanho aproximado.
+- Distratores devem ser tecnicamente plausíveis e relacionados ao contexto da questão, nunca obviamente irrelevantes.
+- Se a resposta correta citar exemplos concretos (classes, métodos, padrões), os distratores também devem citar exemplos concretos igualmente específicos.
+- Inclua pelo menos um distrator que seja "quase correto": identifica o problema certo mas propõe a solução errada, ou vice-versa.
+- Nunca use o distrator como uma versão empobrecida da resposta correta.
+- Evite distratores que misturem dois princípios errados simultaneamente de forma que fique óbvio que estão errados.
+- Em questões de aplicação/análise, o enunciado não deve conter termos que já apareçam na resposta correta (ex: mencionar "responsabilidade única" num enunciado cuja resposta é SRP).
+- Prefira questões que exijam raciocínio sobre o *porquê*, não apenas reconhecimento do nome do princípio.
+`;
 
   document.getElementById('gen-prompt-box').textContent = prompt;
   document.getElementById('gen-prompt-wrap').style.display = 'block';
