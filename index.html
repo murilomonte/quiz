@@ -791,6 +791,7 @@
 <header>
   <span class="logo">Quiz</span>
   <span class="badge">Questões Objetivas</span>
+  <span class="badge" id="total-badge" style="margin-left:auto; color:var(--accent); border-color:var(--accent); opacity:0.85">✎ 0 respondidas</span>
 </header>
 
 <main>
@@ -940,8 +941,18 @@
 let questions = [];
 let userAnswers = {};   // { index: "alternativa escolhida" }
 let submitted = false;
+let sessionAnswered = 0; // questões respondidas (pela 1ª vez) na sessão atual
 
 const LETTERS = ['A','B','C','D','E','F','G','H'];
+
+// ─── TOTAL BADGE (localStorage) ──────────────────────
+function updateTotalBadge() {
+  const total = parseInt(localStorage.getItem('totalAnswered') || '0', 10);
+  document.getElementById('total-badge').textContent = `${total} respondidas`;
+}
+
+// Inicializa o badge ao carregar a página
+updateTotalBadge();
 
 // ─── NAVIGATION ──────────────────────────────────────
 function showScreen(id) {
@@ -1112,6 +1123,7 @@ function loadQuiz() {
   questions = parsed;
   userAnswers = {};
   submitted = false;
+  sessionAnswered = 0;
 
   renderQuestions();
   showScreen('screen-quiz');
@@ -1161,6 +1173,9 @@ function renderQuestions() {
 function selectAlt(qi, ai) {
   if (submitted) return;
 
+  // Incrementa apenas na primeira vez que a questão é respondida
+  if (userAnswers[qi] === undefined) sessionAnswered++;
+
   // Update visual selection
   const alts = document.querySelectorAll(`#alts-${qi} .alt-label`);
   alts.forEach(l => l.classList.remove('selected'));
@@ -1192,6 +1207,10 @@ function submitQuiz() {
   }
 
   submitted = true;
+  // Acumula as questões respondidas desta sessão no localStorage
+  const prevTotal = parseInt(localStorage.getItem('totalAnswered') || '0', 10);
+  localStorage.setItem('totalAnswered', prevTotal + sessionAnswered);
+  updateTotalBadge();
   revealAnswers();
   buildResults();
   showScreen('screen-results');
@@ -1323,6 +1342,7 @@ function reviewMode() {
 function retryQuiz() {
   userAnswers = {};
   submitted = false;
+  sessionAnswered = 0;
   renderQuestions();
   showScreen('screen-quiz');
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1333,6 +1353,7 @@ function resetAll() {
   questions = [];
   userAnswers = {};
   submitted = false;
+  sessionAnswered = 0;
   document.getElementById('json-input').value = '';
   document.getElementById('error-msg').classList.remove('show');
   showScreen('screen-input');
